@@ -244,7 +244,12 @@ Then we successfully built an algorithm that will output who the winner is - you
 
 Lastly, I added some menu handling and stored all the code in a mainLogic() function, along with a clear() function that will unfortunately not work with a Windows machine.
 
+!! NOTE: KEEP IN MIND that this is not the only solution. This is a simple demonstration of a very basic code block being refractored.
+Chances are, if you're a bit of a pro, you'd know a much cooler way to express the same logic and get the needed results!
+
+
 Pro tip:
 Try playing around with code for silly results to get a sense of how it works. Don't rely on a tutorial to tell you everything.
 It's always good to practice the basics and move up the 'levels' to see what you know!
+
 Otherwise you'll be "stupider... like a fox!" (The Simpsons, s06e24, Lemon of Troy)
