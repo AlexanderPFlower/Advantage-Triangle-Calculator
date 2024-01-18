@@ -1,0 +1,250 @@
+# Writeup for Advantage Triangle Calculator
+1. Introduction
+2. Converting names to numbers
+3. Wins, Losses, and Tie/Cancelling Out
+4. Booleans and Conditional Flow
+5. Refactoring Our Code
+6. Conclusion
+
++-+-+-+-+-+-+-+ INTRODUCTION +-+-+-+-+-+-+-+
+
+Most anyone you meet is likely to understand how to play paper, scissors, rock.
+The logic so easy that anyone can play: two players face off and, on a agreed upon timing (per syllable count or seconds perhaps are most common),
+each player decides a hand shape to show at the final count. "Pay-Pah, Scis-sors, ROCK" or each word standing in for "one, two, THREE".
+Of course, many countries have their own version of this game.
+Not only will the words change given the language spoken, but the game may be a cultural capital:
+A game to decide who pays, who goes first, and more!
+
+Given how long the game has been around, what I find fascinating is how it is used as a foundational logic for two games:
+Pokémon and Fire Emblem.
+
+As the logic persists in both Pokémon's videogame and collectable trading card game, Fire Emblem utilises the logic in its videogame, too.
+
+Here we will discuss how to program the logic (using Python) rather than explain exactly how both Pokémon and Fire Emblem builds on Paper, Scissors, Rock.
+For a brief summary, using Pokémon Blue/Red as an example, along with the Gameboy era of Fire Emblem, the logic is as followed:
+
+Paper beats rock, rock beats scissors, scissors beats paper to win. Otherwise it will be a tie.
+Grass beats water, water beats fire, fire beats grass for advantage (effectiveness in Pokémon). Otherwise they cancel out.
+Sword beats Axe, Axe beats Lance, Lance beats Sword for advantage (Weapon Triangle in Fire Emblem). Again, otherwise cancelling each other out.
+
+Of course, there's more to it to Fire Emblem (Battle Accuracy percentages), and Pokémon has expanded the logic with many Pokémon 'types' and other influencing factors over the decades!
+
+
+
++-+-+-+-+-+-+-+ CONVERTING NAMES TO NUMBERS +-+-+-+-+-+-+-+
+
+What we can do is abstract the names of each game into an integer. While Paper, Scissors, Rock is about winning, and Pokémon and
+Fire Emblem is about advantage, the logic persists.
+
+0, 1, 2
+G, W, F = Grass,    Water,  Fire
+S, A, L = Sword,      Axe, Lance
+P, S, R = Paper, Scissors,  Rock
+
+In order to determine a winner we need to firstly provide two pieces of code:
+Some container to group these numbers and a way to access that container to randomly select a number.
+This way, when we generate an algorithm to decide who wins between two players, we are checking all possible types / numbers that may be paired!
+
+To do this, we would write the following code:
+types = [0,1,2]             < container for each type abstracted into numbers from names
+
+Then we need to access this code with three more lines:
+import random               < importing random will allow us to access random modules
+x = random.choice(types)    < storing a random choice of 0, 1 or 2 into a variable called x
+y = random.choice(types)    < likewise for y, thus we have two players to face off
+
+
++-+-+-+-+-+-+-+ WINS, LOSSES, AND TIE/CANCELLING OUT +-+-+-+-+-+-+-+
+
+Next, we need to consider the logic of comparing 0, 1, and 2 in any possible pairs.
+0 0 0 1 1 1 2 2 2 | You
+0 1 2 0 1 2 0 1 2 | Opponent
+------------------
+1 2 3 4 5 6 7 8 9
+C W ? L C W ? L C  C = Cancel or Tie, W = Win, L = Lose, ? = Anomoly we will explore!
+
+What can we understand about this table?
+1. There are 9 possible pairs when two players, two Pokémon, or two fighters face off.
+2. 1 5 9 are all matching pairs
+3. 2 and 6 are winning conditions
+4. 4 and 8 are losing conditions
+5. 3 is a losing condition, yet 7 is a winning condition (hence the anomoly!)
+
+Creating our comparison logic
+So now we need a logic to handle the following rules:
+1. Matching pairs are invalidated. We'll print a result of 'No advantage/it's a tie!'
+2. A set of winning conditions. We'll print a result of 'You win!'
+3. A set of losing condition. We'll print a result of 'Opponent wins!'
+
+So how will we compare our values, especially with 9 possible pairs and having 3 possible results?
+
+We can compare values with a conditional statement in Python in a few ways:
+x < y  (is x less than y?)
+x > y  (is x greater than y?)
+x == y (is x the same as y?)
+x != y (is x not the same as y?)
+
+Here, the conditions are used before instructing the program what to do if the logic proves True.
+
+Here are three ways we might attempt to implement the logic of the 'table'/'rules' in a single condition.
+( == and != for all attempts are unecessary because we know we (x) want to win/have advantage)
+
+A.                          B.                          C.
+if x != y         |         if x < y         |          if x > y
+
+A.                          B.                          C.
+If x 'is not equal to' y.   If x 'is less than' y.      If x 'is greater than' y.
+0 != 0 (False)              0 < 0 (False)               0 > 0 (False)
+0 != 1 (True Win)           0 < 1 (True Win)            0 > 1 (False Loss)
+0 != 2 (False Win)          0 < 2 (False Win)           0 > 2 (True Loss)
+
+1 != 0 (False Win)          1 < 0 (True Loss)           1 > 0 (False Win)
+1 != 1 (False)              1 < 1 (False)               1 > 1 (False)
+1 != 2 (True Win)           1 < 2 (True Win)            1 > 2 (True Win)
+
+2 != 0 (True Win)           2 < 0 (False Loss)          2 > 0 (True Win)
+2 != 1 (False Win)          2 < 1 (True Loss)           2 > 1 (False Win)
+2 != 2 (False)              2 < 2 (False)               2 > 2 (False)
+
+Comparing these to our table/rule set, we have quite the dilemma!
+1. All matching pairs in each comparison (A, B, C) are false / not equal to one another when they should in order to cancel out.
+2. True Wins are only   0:1 1:2 2:0. We have 7 True Wins against 6 False Wins (a win that should not happen).
+3. True Losses are only 0:2 1:0 2:1. We have 3 True Losses against 2 False Losses (a loss that should not happen).
+
+Conclusion:
+A single comparison has proven to be unsatisfactory for our logic, should we desire a simple comparison for x against y for all cases.
+What this means is a series of conditions are needed - check for A condition, otherwise check B, etc.
+This can be done with the use of 'if/elif/else' statements.
+
+
++-+-+-+-+-+-+-+ BOOLEANS AND CONDITIONAL FLOW +-+-+-+-+-+-+-+
+
+Using if/elif/else statements, we can instruct the program what to do upon certain conditions being either True or False.
+This is called a Boolean - we are checking if 'something' is either True or False.
+
+if (a condition is True):
+    DO THIS
+elif (that was false but this is True):
+    DO THIS
+else (aka 'if nothing else works'):
+    DO THIS
+
+When this program is launched, see that we are checking for the first True statement in order to run something we need or want.
+Elif are used to state, in a way, 'if the last one wasn't True, what about this one?'
+We also have a failsafe - if nothing works, just run the instruction for 'else'.
+
+Here are two simple ways we can express Boolean expressions (by no means exhaustive and summative as a Boolean lesson).
+
+username = "thebestusernameever"
+
+A.                                      B.
+If username == "thebestusernameever":   If username:
+    DO THIS                                 DO THIS
+
+A. We are explicitly checking if the value in username is what we think it is.
+B. We do not need to know the value stored within a variable to check if it is True.
+
+Example A is particularly important to understand. Say you wanted to check if something exists in a database, you'd write:
+if "thebestusernameever" in companyDatabase:
+  print("Yes, unfortunately this ridiculous username is in the database...")
+
+
+Now let's work on the code!
+We want to check if we (x) win, lose, or are tied in Paper Scissors Rock.
+But we are also checking if we do or do not have Advantage in Pokémon or Fire Emblem (otherwise it's been cancelled out).
+Instead of simply stating if we have won or we have advantage, let's also state if the opponent has won or has advantage.
+That way we know all possible conditions are met.
+Referring to our previous data, how many conditions need to be met?
+
+1. A condition for matching pairs
+2. Conditions for winning (2 possible ways to win)
+3. Conditions for losing (2 possible ways to lose)
+
+Given our analysis before of each combination possible, you might have notice the removal of the 'anomoly' makes this all very simple.
+If we were simply checking a list with [0,1] or [1,2], this task is simple to achieve.
+IF our x,y combinations are 0:1 or 1:2, we win. So just use if x < y.
+ELIF our x,y combinations are 0:0, 1:1 or 2:2, it's a tie/no advantage. Here, x == y would be the expression to check.
+ELSE we lose. So if x < y is False and x == y is False, then 'else' is defaulted.
+
+So, we need to be 1 value less than the opponent, right?
+Check out the finished code block below and see for yourself!
+
+----- CODE BLOCK
+
+import random
+types = [0,1,2]
+x = random.choice(types)
+y = random.choice(types)
+
+if x == y:
+    print("No advantage/it\'s a tie")       < don't forget to use an escape for the ' apostrophe!
+elif (x+1 == 3) and y == 0:                 < 2 must beat 0, but 2 and 0 can't compare that easily.
+    print("You have advantage/won")         < if we have 2 + 1 = 3, and the opponent has 0, we win!
+elif (y+1 == 3) and x == 0:                 < the inverse of the previous logic
+    print("Opponent has advantage/won")
+elif x != 2 and y != 2 and x < y:           < if nobody is 2, we must be smaller than the other to win
+    print("You have advantage/won")         < We checked and 'removed' 2 from the logic to create a boolean expression / True vs False
+elif x != 2 and y != 2 and x > y:           < the inverse, of course
+    print("Opponent has advantage/won")
+elif y == 2 and x == 1:                     < now we've handled all the [0,2] pairs, we finish checking x,y numbers as if [0,1] and [1,2] groupings
+    print("You have advantage/won")
+elif x == 2 and y == 1:                     < Finally we have checked all possible combinations of 0, 1 and 2!
+    print("Opponent has advantage/won")
+
+
++-+-+-+-+-+-+-+ REFACTORING OUR CODE +-+-+-+-+-+-+-+
+
+To 'refactor' your code means to look over it again and see if you could express anything in a better, optimised, and/or more concise way.
+Another way to think of it is asking, "Can I do this with fewer lines of code?"
+Good news is we certainly can!
+
+if x == y:                                  < check first for matching pairs
+    print("No advantage/it's a tie")
+elif x == y-2:                              < is your opponent 2 while we are 0?
+    print("Opponent has advantage/won")
+elif x < y:                                 < if they're not two, are we 1 value less?
+    print("You have advantage/won")
+else:                                       < if no match, nobody is 2, and you're not 1 less, finally the opponent wins
+    print("Opponent has advantage/won")
+
+We have now 'refactored' our logic code from 14 lines to 8 lines of code.
+We achieved this by observing how we checked for all conditions, but then reconsider these conditions as simpler boolean expressions.
+How?
+First check if we have matching pairs to create the no advantage/tie condition
+If not, is the opponent 2?
+If not, are we 1 value less than the opponent?
+If not, Opponent wins.
+
+All you need now is to add the following above it in order to give the code block the data to work with:
+import random
+types = [0,1,2]
+x = random.choice(types)    < we cannot state x,y together for random.choice() because TypeError: cannot unpoack non-iterable int object will occur
+y = random.choice(types)    (although that'd be great if you wanted to to reduce another line)
+
+
++-+-+-+-+-+-+-+ CONCLUSION +-+-+-+-+-+-+-+
+
+In this write-up I show how the simple logic used in Paper, Scissors, Rock are foundational to Pokémon and Fire Emblem.
+Each game has three options.
+We can abstract from each game's named options into numbers.
+Considering these options as a triangle of cyclical logic, we have the following:
+
+  A    OR    1
+C   B      2   3
+
+A beats B, B beats C, C beats A.
+1 beats 2, 2 beats 3, 3 beats 1.
+
+Note: you could also consider the logic as 'neighbours' - e.g., C beats A on the left, but loses to B on the right.
+
+We stored these options as values in a list:
+types = [0,1,2]
+
+Then we successfully built an algorithm that will output who the winner is - you or your opponent - and announce a tie when resultant.
+
+Lastly, I added some menu handling and stored all the code in a mainLogic() function, along with a clear() function that will unfortunately not work with a Windows machine.
+
+Pro tip:
+Try playing around with code for silly results to get a sense of how it works. Don't rely on a tutorial to tell you everything.
+It's always good to practice the basics and move up the 'levels' to see what you know!
+Otherwise you'll be "stupider... like a fox!" (The Simpsons, s06e24, Lemon of Troy)
